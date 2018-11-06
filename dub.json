@@ -1,0 +1,12 @@
+{
+	"description": "Graphically display a memory map",
+	"dependencies": {
+		"derelict-sdl2": "~>3.0.0-beta"
+	},
+	"authors": [
+		"Samathy Barratt"
+	],
+	"copyright": "Copyright © 2018, samathy",
+	"license": "LGPL",
+	"name": "flatmap"
+}
