@@ -124,14 +124,6 @@ int main(string[] args)
 
     foreach (data; data_points)
     {
-
-        writeln("Rect:");
-        writeln("x: " ~ 0);
-        writeln("y: " ~ 0);
-        writeln("width: " ~ to!string(data.get_end()));
-        writeln("height: " ~ 50);
-        writeln("offset: " ~ to!string(data.get_start()));
-
         total_width += data.get_end();
 
         color rect_color = get_random_color();
