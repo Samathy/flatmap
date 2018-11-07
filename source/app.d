@@ -1,7 +1,7 @@
-import std.stdio, std.string, std.getopt, std.file;
+import std.stdio, std.string, std.getopt, std.file, std.random;
 import std.conv : to;
 
-import derelict.sdl2.sdl, derelict.util.loader : SharedLibVersion;
+import derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.util.loader : SharedLibVersion;
 
 struct screen_dimensions
 {
@@ -20,6 +20,82 @@ struct color
 static const color red = {255, 0, 0, 255};
 static const color blue = {0, 255, 0, 255};
 static const color green = {0, 0, 255, 255};
+
+static const color[] colors = [red, green, blue, {255, 0, 255, 255}, {
+    100, 100, 0, 255
+}, {100, 200, 50, 255}, {72, 214, 176, 255}, {
+    2, 252, 233, 255
+}, {240, 229, 58, 255}, {192, 126, 57, 255}, {
+    168, 108, 37, 255
+}, {187, 223, 113, 255}, {69, 213, 176, 255}, {
+    236, 173, 64, 255
+}, {221, 32, 217, 255}, {204, 75, 102, 255}, {
+    187, 236, 70, 255
+}, {165, 58, 221, 255}, {239, 124, 193, 255}, {
+    236, 84, 83, 255
+}, {225, 208, 128, 255}, {186, 189, 164, 255}, {
+    229, 84, 127, 255
+}, {87, 173, 45, 255}, {75, 30, 167, 255}, {
+    12, 203, 130, 255
+}, {31, 71, 155, 255}, {58, 247, 95, 255}, {
+    94, 98, 171, 255
+}, {207, 177, 251, 255}, {175, 51, 230, 255}, {
+    167, 180, 146, 255
+}, {106, 125, 180, 255}, {20, 144, 193, 255}, {
+    171, 29, 224, 255
+}, {59, 252, 184, 255}, {149, 93, 181, 255}, {
+    196, 255, 116, 255
+}, {77, 154, 152, 255}, {116, 250, 247, 255}, {
+    106, 188, 247, 255
+}, {57, 144, 15, 255}, {85, 146, 124, 255}, {
+    29, 192, 200, 255
+}, {211, 225, 124, 255}, {90, 231, 169, 255}, {
+    63, 8, 182, 255
+}, {229, 194, 51, 255}, {240, 126, 82, 255}, {
+    225, 221, 194, 255
+}, {48, 127, 227, 255}, {236, 66, 145, 255}, {
+    203, 187, 240, 255
+}, {187, 50, 208, 255}, {167, 146, 112, 255}, {
+    192, 152, 179, 255
+}, {84, 153, 196, 255}, {148, 216, 80, 255}, {
+    39, 66, 17, 255
+}, {53, 67, 111, 255}, {57, 227, 183, 255}, {
+    194, 167, 67, 255
+}, {4, 113, 14, 255}, {213, 247, 185, 255}, {
+    243, 9, 243, 255
+}, {201, 115, 253, 255}, {29, 238, 128, 255}, {
+    54, 84, 184, 255
+}, {183, 221, 198, 255}, {51, 113, 239, 255}, {
+    212, 61, 141, 255
+}, {102, 85, 17, 255}, {83, 69, 133, 255}, {
+    200, 238, 149, 255
+}, {93, 234, 102, 255}, {98, 82, 30, 255}, {
+    211, 213, 64, 255
+}, {39, 219, 75, 255}, {80, 31, 63, 255}, {7, 162, 88, 255}, {
+    154, 145, 180, 255
+}, {134, 188, 57, 255}, {52, 185, 212, 255}, {
+    96, 151, 42, 255
+}, {147, 106, 56, 255}, {41, 135, 224, 255}, {
+    130, 80, 58, 255
+}, {232, 248, 176, 255}, {208, 158, 208, 255}, {
+    239, 27, 237, 255
+}, {223, 125, 169, 255}, {102, 2, 45, 255}, {
+    39, 170, 11, 255
+}, {191, 67, 4, 255}, {170, 113, 130, 255}, {13, 243, 0, 255}, {
+    209, 150, 102, 255
+}, {121, 204, 156, 255}, {2, 10, 204, 255}, {
+    248, 149, 31, 255
+}, {196, 245, 60, 255}, {131, 60, 147, 255}, {
+    179, 187, 232, 255
+}, {77, 9, 198, 255}, {130, 111, 143, 255}, {
+    4, 227, 171, 255
+}];
+
+color get_random_color()
+{
+    auto rnd = new Random(unpredictableSeed);
+    return colors[uniform(0, colors.length - 1, rnd)];
+}
 
 class SDLException : Exception
 {
@@ -140,6 +216,7 @@ class rectangle
 
 unittest
 {
+
     setup_derelict();
     sdl_window main_window;
     try
@@ -155,8 +232,6 @@ unittest
     {
         assert(false);
     }
-
-    color red = {255, 0, 0, 255};
 
     rectangle rect = new rectangle(0, 0, 120, 120, red, main_window.get_renderer());
 
@@ -324,7 +399,6 @@ unittest
     assert(main_window.title == "flatmap");
     assert(main_window.window != null);
     /* assert(main_window.surface != null); */
-
 }
 
 template data_point(Tlabel : string, Tstart, Tend)
@@ -455,25 +529,39 @@ int main(string[] args)
 
     try
     {
-        main_window = new sdl_window("flatmap", 640, 480);
+        main_window = new sdl_window("flatmap", 0, 0, window_width, window_height);
     }
     catch (SDLException e)
     {
         writeln("sdl_window failed with: " ~ e.GetError());
     }
 
-    rectangle rect = new rectangle(0, 0, 50, 50, red, main_window.get_renderer());
-    rect.centered(main_window.get_size());
-    rect.render();
+    rectangle[] rects;
 
-    rectangle rect1 = new rectangle(0, 0, 50, 50, blue, main_window.get_renderer());
-    rect1.centered(main_window.get_size());
-    rect1.offset(rect.get_rect().w, 'l');
-    rect1.render();
+    int total_width;
+
+    foreach (data; data_points)
+    {
+
+        writeln("Rect:");
+        writeln("x: " ~ 0);
+        writeln("y: " ~ 0);
+        writeln("width: " ~ to!string(data.get_end()));
+        writeln("height: " ~ 50);
+        writeln("offset: " ~ to!string(data.get_start()));
+
+        total_width += data.get_end();
+
+        rects ~= new rectangle(0, 0, data.get_end() * blocksize, 50,
+                get_random_color(), main_window.get_renderer());
+        //rects[rects.length-1].centered(main_window.get_size());
+        rects[rects.length - 1].offset(data.get_start() * blocksize, 'l');
+        rects[rects.length - 1].render();
+    }
 
     main_window.update();
 
-    SDL_Delay(2000);
+    SDL_Delay(5000);
 
     SDL_Quit();
 
