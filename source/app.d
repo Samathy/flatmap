@@ -1,8 +1,9 @@
-import std.stdio, std.string, std.getopt, std.file;
+import std.stdio, std.string, std.getopt, std.file, core.thread;
 import std.typecons : tuple;
 import std.conv : to;
 
 import graphics;
+import derelict.sdl2.sdl;
 
 template data_point(Tlabel : string, Tstart, Tend)
 {
@@ -77,7 +78,9 @@ int main(string[] args)
     int blocksize = 1;
     int window_width = 640;
     int window_height = 480;
-
+    int total_width;
+    bool quit = false;
+    SDL_Event e;
     File data_file;
 
     getopt(args, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b",
@@ -144,7 +147,20 @@ int main(string[] args)
 
     graph_key.render();
 
-    Delay(5000);
+    while (!quit)
+    {
+
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_QUIT)
+            {
+                quit = true;
+            }
+        }
+
+        main_window.update();
+        Thread.sleep(dur!("msecs")(2));
+    }
 
     Quit();
 
