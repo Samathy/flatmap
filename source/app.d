@@ -179,13 +179,16 @@ class sdl_window
     public
     {
         this(string title, int x = SDL_WINDOWPOS_UNDEFINED, int y = SDL_WINDOWPOS_UNDEFINED,
-                const int width = 640, const int height = 480, const bool init = true)
+                const int width = 640, const int height = 480,
+                const bool init = true, const bool has_surface = false)
         {
             this.title = title;
             this.window_x = x;
             this.window_y = y;
             this.window_width = width;
             this.window_height = height;
+
+            this.has_surface = has_surface;
 
             if (init)
             {
@@ -196,7 +199,11 @@ class sdl_window
             }
 
             this.create_window(SDL_WINDOW_SHOWN);
-            this.create_renderer();
+
+            if (!this.has_surface)
+            {
+                this.create_renderer();
+            }
 
             this.clear();
         }
@@ -263,22 +270,24 @@ class sdl_window
                         to!string(SDL_GetError()));
             }
 
-            if ((this.surface = SDL_GetWindowSurface(this.window)) == null)
+            if (this.has_surface)
             {
-                throw new SDLException("Failed to get window surface.", to!string(SDL_GetError()));
+                if ((this.surface = SDL_GetWindowSurface(this.window)) == null)
+                {
+                    throw new SDLException("Failed to get window surface.",
+                            to!string(SDL_GetError()));
+                }
             }
 
         }
 
         void create_renderer()
         {
-
             if ((this.renderer = SDL_CreateRenderer(this.window, -1,
                     SDL_RENDERER_ACCELERATED)) == null)
             {
                 throw new SDLException("Failed to create renderer.", to!string(SDL_GetError()));
             }
-
         }
 
         string title;
@@ -286,6 +295,7 @@ class sdl_window
         int window_y;
         int window_width;
         int window_height;
+        bool has_surface;
         SDL_Window* window = null;
         SDL_Surface* surface = null;
         SDL_Renderer* renderer = null;
@@ -313,7 +323,7 @@ unittest
 
     assert(main_window.title == "flatmap");
     assert(main_window.window != null);
-    assert(main_window.surface != null);
+    /* assert(main_window.surface != null); */
 
 }
 
