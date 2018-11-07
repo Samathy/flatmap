@@ -1,5 +1,6 @@
 import std.random, std.string, std.stdio;
 import std.conv : to;
+import std.typecons : Tuple, tuple;
 import derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.util.loader : SharedLibVersion;
 
 struct screen_dimensions
@@ -91,6 +92,23 @@ color get_random_color()
     return colors[uniform(0, colors.length - 1, rnd)];
 }
 
+unittest
+{
+
+    for (int i = 0; i < 100; i++)
+    {
+        color c = get_random_color();
+
+        assert(c.r >= 0);
+        assert(c.r <= 255);
+        assert(c.g >= 0);
+        assert(c.g <= 255);
+        assert(c.b >= 0);
+        assert(c.b <= 255);
+    }
+
+}
+
 bool setup_derelict()
 {
     DerelictSDL2.load(SharedLibVersion(2, 0, 2));
@@ -149,7 +167,6 @@ class SDLException : Exception
 
 class rectangle
 {
-
     public
     {
         this(int x, int y, int width, int height, color col, SDL_Renderer* renderer)
@@ -220,6 +237,11 @@ class rectangle
         {
             return this.rect;
         }
+
+        @safe pure nothrow const int get_width()
+        {
+            return this.rect_width;
+        }
     }
 
     private
@@ -285,9 +307,18 @@ class text
 {
     public
     {
-        this(SDL_Renderer* renderer)
+        this(string text_content, int x, int y, color col, int fontsize,
+                SDL_Renderer* renderer, SDL_Rect* clip = null, double angle = 0.0,
+                SDL_Point* center = null, SDL_RendererFlip flip = SDL_FLIP_NONE)
         {
             this.renderer = renderer;
+            this.x = x;
+            this.y = y;
+            this.clip = clip;
+            this.angle = angle;
+            this.flip = flip;
+            this.text_color = col;
+            this.font_size = fontsize;
 
             if ((TTF_Init()) < 0)
             {
@@ -295,51 +326,78 @@ class text
                         to!string(TTF_GetError()));
             }
 
-            if ((this.font = TTF_OpenFont("/usr/share/fonts/TTF/FreeMonoBold.ttf", 28)) == null)
+            if ((this.font = TTF_OpenFont("/usr/share/fonts/TTF/FreeMonoBold.ttf",
+                    this.font_size)) == null)
             {
                 throw new SDLException("Could not load font", to!string(TTF_GetError()));
             }
+
+            load_rendered_text(text_content);
 
         }
 
         ~this()
         {
+            SDL_FreeSurface(text_surface);
             SDL_DestroyTexture(this.texture);
         }
 
-        void load_rendered_text(string text, color text_color = black,)
+        void load_rendered_text(string text, color text_color = black)
         {
-            SDL_Surface* text_surface;
-            if ((text_surface = TTF_RenderText_Solid(this.font, toStringz(text), text_color)) == null)
+            if ((this.text_surface = TTF_RenderText_Solid(this.font,
+                    toStringz(text), text_color)) == null)
             {
                 throw new SDLException("Could not create text surface", to!string(SDL_GetError()));
             }
 
-            if ((this.texture = SDL_CreateTextureFromSurface(this.renderer, text_surface)) == null)
+            if ((this.texture = SDL_CreateTextureFromSurface(this.renderer,
+                    this.text_surface)) == null)
             {
                 throw new SDLException("Could not create text texture", to!string(SDL_GetError()));
             }
 
             this.width = text_surface.w;
             this.height = text_surface.h;
-
-            SDL_FreeSurface(text_surface);
         }
 
-        void render(int x, int y, SDL_Rect* clip = null, double angle = 0.0,
-                SDL_Point* center = null, SDL_RendererFlip flip = SDL_FLIP_NONE)
+        void render()
         {
-
-            SDL_Rect texture_space = {x, y, this.width, this.height};
+            SDL_Rect texture_space = {this.x, this.y, this.width, this.height};
 
             if (clip)
             {
-                texture_space.w = clip.w;
-                texture_space.h = clip.h;
+                texture_space.w = this.clip.w;
+                texture_space.h = this.clip.h;
             }
 
-            SDL_RenderCopyEx(this.renderer, this.texture, clip,
-                    &texture_space, angle, center, flip);
+            SDL_RenderCopyEx(this.renderer, this.texture, this.clip,
+                    &texture_space, this.angle, this.center, this.flip);
+        }
+
+        void offset(int offset, char alignment)
+        {
+            if (alignment == 'r')
+            {
+                this.x -= offset;
+            }
+            else if (alignment == 't')
+            {
+                this.y += offset;
+            }
+            else
+            {
+                throw new Exception("E_NOTIMPL");
+            }
+        }
+
+        @safe pure nothrow const int get_x()
+        {
+            return this.x;
+        }
+
+        @safe pure nothrow const int get_y()
+        {
+            return this.y;
         }
 
         @safe pure nothrow const int get_width()
@@ -355,12 +413,171 @@ class text
 
     private
     {
+        SDL_Surface* text_surface;
         SDL_Renderer* renderer;
         SDL_Texture* texture;
+        SDL_Rect* clip;
+        SDL_Point* center;
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
         TTF_Font* font;
 
+        color text_color;
+
+        int font_size;
+        double angle;
         int width;
         int height;
+        int x;
+        int y;
+    }
+}
+
+unittest
+{
+
+    setup_derelict();
+    sdl_window main_window;
+    try
+    {
+        main_window = new sdl_window("flatmap", 640, 480);
+    }
+    catch (SDLException e)
+    {
+        writeln("Setting up an SDL window failed with: " ~ e.GetError());
+        assert(false);
+    }
+    catch (Exception e)
+    {
+        assert(false);
+    }
+
+    color red = {255, 0, 0, 255};
+
+    text t = new text("hello", 20, 2, red, main_window.get_renderer());
+
+    t.offset(10, 'r');
+    assert(t.get_x() == 20 - 10);
+
+    t.offset(10, 't');
+    assert(t.get_y() == 2 + 10);
+
+    t.render();
+
+}
+
+class key
+{
+
+    public
+    {
+        this(screen_dimensions dimensions, SDL_Renderer* renderer, int fontsize = 16)
+        {
+            this.font_size = fontsize;
+            this.renderer = renderer;
+            this.dimensions = dimensions;
+        }
+
+        void add(color col, string label)
+        {
+            entries ~= tuple!("color", "label", "rect", "rendered_text")(col,
+                    label, cast(rectangle) null, cast(text) null);
+        }
+
+        void remove(string label)
+        {
+        }
+
+        void render()
+        {
+            int y_position = 0;
+
+            int longest_label;
+            int tallest_label;
+
+            foreach (ref entry; this.entries)
+            {
+                if (entry.rect is null)
+                {
+                    entry.rect = this.create_rectangle(entry.color);
+                }
+
+                if (entry.rendered_text is null)
+                {
+                    entry.rendered_text = this.create_text(entry.label);
+                }
+            }
+
+            longest_label = this.find_longest_label();
+            tallest_label = this.find_tallest_label();
+
+            foreach (ref entry; this.entries)
+            {
+                if (entry.rect is null || entry.rendered_text is null)
+                {
+                    throw new Exception("Whoops, entries are null");
+                }
+
+                entry.rendered_text.offset(entry.rendered_text.get_width() + this.margin, 'r');
+                entry.rendered_text.offset(y_position + tallest_label, 't');
+                entry.rect.offset(longest_label + entry.rect.get_width() + this.margin, 'r');
+                entry.rect.offset(y_position + tallest_label, 't');
+
+                entry.rendered_text.render();
+                entry.rect.render();
+                y_position += tallest_label + this.margin;
+            }
+        }
+
+    }
+
+    private
+    {
+        rectangle create_rectangle(color col)
+        {
+            return new rectangle(this.dimensions.w, 0, 50, this.font_size, col, this.renderer);
+        }
+
+        text create_text(string label)
+        {
+            return new text(label, dimensions.w, 0, black, this.font_size, this.renderer);
+        }
+
+        int find_longest_label()
+        {
+            int longest_label;
+
+            foreach (entry; this.entries)
+            {
+                if (entry.rendered_text.get_width() > longest_label)
+                {
+                    longest_label = entry.rendered_text.get_width();
+                }
+            }
+
+            return longest_label;
+        }
+
+        int find_tallest_label()
+        {
+            int tallest_label;
+
+            foreach (entry; this.entries)
+            {
+                if (entry.rendered_text.get_height() > tallest_label)
+                {
+                    tallest_label = entry.rendered_text.get_height();
+                }
+            }
+
+            return tallest_label;
+        }
+
+        Tuple!(color, "color", string, "label", rectangle, "rect", text, "rendered_text")[] entries;
+        screen_dimensions dimensions;
+        SDL_Renderer* renderer;
+
+        int margin = 5;
+        int font_size;
     }
 }
 
@@ -474,8 +691,7 @@ class sdl_window
 
         void create_renderer()
         {
-            if ((this.renderer = SDL_CreateRenderer(this.window, -1,
-                    SDL_RENDERER_ACCELERATED)) == null)
+            if ((this.renderer = SDL_CreateRenderer(this.window, -1, SDL_RENDERER_SOFTWARE)) == null)
             {
                 throw new SDLException("Failed to create renderer.", to!string(SDL_GetError()));
             }
