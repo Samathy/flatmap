@@ -1,4 +1,4 @@
-import std.stdio, std.string;
+import std.stdio, std.string, std.getopt, std.file;
 import std.conv : to;
 
 import derelict.sdl2.sdl, derelict.util.loader : SharedLibVersion;
@@ -327,6 +327,71 @@ unittest
 
 }
 
+template data_point(Tlabel : string, Tstart, Tend)
+{
+
+    class data_point
+    {
+        public
+        {
+            this(string line, char delimiter)
+            {
+                string[] splitted = line.split(delimiter);
+
+                writeln(splitted);
+
+                this.label = to!Tlabel(splitted[0].strip());
+                this.start = to!Tstart(splitted[1].strip());
+                this.end = to!Tend(splitted[2].strip());
+
+            }
+
+            @safe nothrow const Tlabel get_label()
+            {
+                return this.label;
+            }
+
+            @safe nothrow const Tstart get_start()
+            {
+                return this.start;
+            }
+
+            @safe nothrow const Tend get_end()
+            {
+                return this.end;
+            }
+
+        }
+
+        private
+        {
+            Tlabel label;
+
+            Tstart start;
+            Tend end;
+        }
+    }
+}
+
+unittest
+{
+
+    data_point!(string, int, int) l = new data_point!(string, int, int)("Hello 10 20", ' ');
+
+    assert(l.get_label() == "Hello");
+    assert(l.get_start() == 10);
+    assert(l.get_end() == 20);
+
+    l = new data_point!(string, int, int)("Hello 10 20\n", ' ');
+
+    assert(l.get_label() == "Hello");
+    assert(l.get_start() == 10);
+    assert(l.get_end() == 20);
+
+    l = new data_point!(string, int, int)("Hello 10 20 30\n", ' ');
+
+}
+
 bool setup_derelict()
 {
     DerelictSDL2.load(SharedLibVersion(2, 0, 2));
@@ -351,8 +416,37 @@ unittest
     }
 }
 
-int main()
+int main(string[] args)
 {
+
+    string filename; //The datafile we're opening
+    char delimiter = ' '; //The column delimiter
+    int blocksize = 1;
+    int window_width = 640;
+    int window_height = 480;
+
+    File data_file;
+
+    getopt(args, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b",
+            &blocksize, "width|w", &window_width, "height|h", &window_height);
+
+    if (exists(filename))
+    {
+        data_file.open(filename, "r");
+    }
+    else
+    {
+        writeln("No input file");
+        return 1;
+    }
+
+    data_point!(string, int, int)[] data_points;
+
+    foreach (line; data_file.byLine())
+    {
+        data_points ~= new data_point!(string, int, int)(to!string(line), delimiter);
+    }
+
     //Todo support arguments for screen size
 
     setup_derelict();
