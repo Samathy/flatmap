@@ -4,9 +4,13 @@ flatmap
 
 ####TODO list
 
+[] Implement some nice way of closing the window
+[] Support piping in values on stdin
+    [] Support continuous updating from stdin values
+[] Support multiple graphs on the same screen
 [] Support saving images
-[] Support specifying block sizes
+[x] Support specifying block sizes
 [] Support adding labels
-[] Support a key
+[x] Support a key
 [] Move the drawing to make sure it stays centered
 [] zoom support
