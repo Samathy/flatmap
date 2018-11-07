@@ -1,6 +1,6 @@
 import std.stdio, std.string, std.getopt, std.file;
-import std.typecons: tuple;
-import std.conv: to;
+import std.typecons : tuple;
+import std.conv : to;
 
 import graphics;
 
