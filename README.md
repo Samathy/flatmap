@@ -20,24 +20,15 @@ Flatmap can be ran as such:
 
 All options apart from filename are optional.
 
-####TODO list
+### TODO list
 
- [x] Implement some nice way of closing the window
- 
- [ ] Support piping in values on stdin
- 
-     [ ] Support continuous updating from stdin values
-     
- [] Support multiple graphs on the same screen
- 
- [] Support saving images
- 
- [x] Support specifying block sizes
- 
- [] Support adding labels
- 
- [x] Support a key
- 
- [] Move the drawing to make sure it stays centered
- 
- [] zoom support
+- [x] Implement some nice way of closing the window
+- [ ] Support piping in values on stdin
+    - [ ] Support continuous updating from stdin values
+- [ ] Support multiple graphs on the same screen
+- [ ] Support saving image
+- [x] Support specifying block sizes
+- [ ] Support adding labels
+- [x] Support a key
+- [ ] Move the drawing to make sure it stays centered
+- [ ] zoom support
