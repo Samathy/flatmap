@@ -1,0 +1,11 @@
+SourcePort 0 16
+DestinationPort 16 32
+SequenceNumber 32 32
+AcknowledgementNumber 64 32
+DataOffset 96 4
+Reserved 100 3
+Flags 103 9
+WindoowSize 110 16
+Checksum 128 16
+UrgentPtr 144 16
+Options 160 16
