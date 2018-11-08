@@ -1,9 +1,10 @@
 import std.stdio, std.string;
-import std.conv: to;
+import std.conv : to;
 
 import derelict.sdl2.sdl, derelict.util.loader : SharedLibVersion;
 
-struct screen_dimensions {
+struct screen_dimensions
+{
     int w = 640;
     int h = 480;
 };
@@ -16,11 +17,11 @@ struct color
     ubyte a = 0;
 }
 
-static const color red = {255,0,0,255};
-static const color blue = {0,255,0,255};
-static const color green = {0,0,255,255};
+static const color red = {255, 0, 0, 255};
+static const color blue = {0, 255, 0, 255};
+static const color green = {0, 0, 255, 255};
 
-class SDLException: Exception
+class SDLException : Exception
 {
     this(string msg, string sdl_error, string file = __FILE__, size_t line = __LINE__)
     {
@@ -39,10 +40,8 @@ class SDLException: Exception
     }
 }
 
-
 class rectangle
 {
-
 
     public
     {
@@ -60,9 +59,7 @@ class rectangle
             this.create_rect();
         }
 
-        @safe
-        pure nothrow
-        void centered(screen_dimensions s)
+        @safe pure nothrow void centered(screen_dimensions s)
         {
             int new_x;
             int new_y;
@@ -78,13 +75,11 @@ class rectangle
             return;
         }
 
-        @safe
-        pure nothrow
-        void offset(int offset, char alignment)
+        @safe pure nothrow void offset(int offset, char alignment)
         {
             if (alignment == 'l')
-            {   
-               this.rect.x += offset;
+            {
+                this.rect.x += offset;
             }
             else if (alignment == 'r')
             {
@@ -103,15 +98,18 @@ class rectangle
 
         void render()
         {
-            if((SDL_SetRenderDrawColor(this.renderer, this.col.r, this.col.b, this.col.g, this.col.a)) < 0)
-            {    throw new SDLException("Could not set render colour: ", to!string(SDL_GetError()));     }
+            if ((SDL_SetRenderDrawColor(this.renderer, this.col.r, this.col.b,
+                    this.col.g, this.col.a)) < 0)
+            {
+                throw new SDLException("Could not set render colour: ", to!string(SDL_GetError()));
+            }
             if ((SDL_RenderFillRect(renderer, &this.rect)) < 0)
-            {    throw new SDLException("Could not set render colour: ", to!string(SDL_GetError()));     }
+            {
+                throw new SDLException("Could not set render colour: ", to!string(SDL_GetError()));
+            }
         }
 
-        @safe
-        pure nothrow
-        const SDL_Rect get_rect()
+        @safe pure nothrow const SDL_Rect get_rect()
         {
             return this.rect;
         }
@@ -129,7 +127,7 @@ class rectangle
         }
 
         SDL_Rect rect;
-        SDL_Renderer * renderer;
+        SDL_Renderer* renderer;
         color col;
 
         int rect_x;
@@ -146,11 +144,11 @@ unittest
     sdl_window main_window;
     try
     {
-       main_window = new sdl_window("flatmap", 640, 480);
+        main_window = new sdl_window("flatmap", 640, 480);
     }
     catch (SDLException e)
     {
-        writeln("Setting up an SDL window failed with: "~e.GetError());
+        writeln("Setting up an SDL window failed with: " ~ e.GetError());
         assert(false);
     }
     catch (Exception e)
@@ -158,11 +156,9 @@ unittest
         assert(false);
     }
 
+    color red = {255, 0, 0, 255};
 
-    color red = {255,0,0,255};
-
-    rectangle rect = new rectangle(0, 0, 120,120, red, main_window.get_renderer());
-
+    rectangle rect = new rectangle(0, 0, 120, 120, red, main_window.get_renderer());
 
     rect.offset(10, 'l');
 
@@ -170,9 +166,8 @@ unittest
 
     rect.centered(main_window.get_size());
 
-    assert(rect.get_rect().y == (main_window.get_size().h - 120) /2);
+    assert(rect.get_rect().y == (main_window.get_size().h - 120) / 2);
     assert(rect.get_rect().x == (main_window.get_size().w - 120) / 2);
-
 
     rect.render();
 
@@ -183,18 +178,21 @@ class sdl_window
 
     public
     {
-        this(string title, int x = SDL_WINDOWPOS_UNDEFINED, int y = SDL_WINDOWPOS_UNDEFINED, const int width=640, const int height=480, const bool init=true)
+        this(string title, int x = SDL_WINDOWPOS_UNDEFINED, int y = SDL_WINDOWPOS_UNDEFINED,
+                const int width = 640, const int height = 480, const bool init = true)
         {
             this.title = title;
             this.window_x = x;
-            this.window_y=y;
+            this.window_y = y;
             this.window_width = width;
             this.window_height = height;
 
             if (init)
             {
                 if (SDL_Init(SDL_INIT_VIDEO) > 0)
-                {    throw new SDLException("Failed to initialise SDL", to!string(SDL_GetError()));   }
+                {
+                    throw new SDLException("Failed to initialise SDL", to!string(SDL_GetError()));
+                }
             }
 
             this.create_window(SDL_WINDOW_SHOWN);
@@ -220,16 +218,12 @@ class sdl_window
         }
 
         // I'd like to make these return const-only pointers. but idk how to do that.
-        @safe
-        pure nothrow
-        string get_title()
+        @safe pure nothrow string get_title()
         {
             return this.title.dup();
         }
 
-        @safe
-        pure nothrow
-        screen_dimensions get_size()
+        @safe pure nothrow screen_dimensions get_size()
         {
             screen_dimensions s;
             s.w = this.window_width;
@@ -237,28 +231,20 @@ class sdl_window
             return s;
         }
 
-        @safe
-        pure nothrow
-        SDL_Window * get_window()
+        @safe pure nothrow SDL_Window* get_window()
         {
             return this.window;
         }
 
-        @safe
-        pure nothrow
-        SDL_Surface * get_surface()
+        @safe pure nothrow SDL_Surface* get_surface()
         {
             return this.surface;
         }
 
-        @safe
-        pure nothrow
-        SDL_Renderer * get_renderer()
+        @safe pure nothrow SDL_Renderer* get_renderer()
         {
             return this.renderer;
         }
-
-
 
     }
 
@@ -270,19 +256,28 @@ class sdl_window
         void create_window(SDL_WindowFlags flags)
         {
 
-            if ((this.window = SDL_CreateWindow(toStringz(this.title), this.window_x, this.window_y, this.window_width, this.window_height, flags)) == null)
-            {    throw new SDLException("Failed to create SDL window"~this.title, to!string(SDL_GetError()));    }
+            if ((this.window = SDL_CreateWindow(toStringz(this.title), this.window_x,
+                    this.window_y, this.window_width, this.window_height, flags)) == null)
+            {
+                throw new SDLException("Failed to create SDL window" ~ this.title,
+                        to!string(SDL_GetError()));
+            }
 
             if ((this.surface = SDL_GetWindowSurface(this.window)) == null)
-            {    throw new SDLException("Failed to get window surface.", to!string(SDL_GetError()));    }
+            {
+                throw new SDLException("Failed to get window surface.", to!string(SDL_GetError()));
+            }
 
         }
 
         void create_renderer()
         {
 
-            if ((this.renderer = SDL_CreateRenderer(this.window, -1, SDL_RENDERER_ACCELERATED)) == null)
-            {    throw new SDLException("Failed to create renderer.", to!string(SDL_GetError()));    }
+            if ((this.renderer = SDL_CreateRenderer(this.window, -1,
+                    SDL_RENDERER_ACCELERATED)) == null)
+            {
+                throw new SDLException("Failed to create renderer.", to!string(SDL_GetError()));
+            }
 
         }
 
@@ -304,11 +299,11 @@ unittest
     sdl_window main_window;
     try
     {
-       main_window = new sdl_window("flatmap", 640, 480);
+        main_window = new sdl_window("flatmap", 640, 480);
     }
     catch (SDLException e)
     {
-        writeln("Setting up an SDL window failed with: "~e.GetError());
+        writeln("Setting up an SDL window failed with: " ~ e.GetError());
         assert(false);
     }
     catch (Exception e)
@@ -321,11 +316,10 @@ unittest
     assert(main_window.surface != null);
 
 }
-    
 
 bool setup_derelict()
 {
-    DerelictSDL2.load(SharedLibVersion(2,0,2));
+    DerelictSDL2.load(SharedLibVersion(2, 0, 2));
 
     return true;
 }
@@ -339,7 +333,7 @@ unittest
 
     catch (SDLException e)
     {
-        assert(false, "setup_derelict threw: "~e.GetError());
+        assert(false, "setup_derelict threw: " ~ e.GetError());
     }
     catch (Exception e)
     {
@@ -350,25 +344,25 @@ unittest
 int main()
 {
     //Todo support arguments for screen size
-    
+
     setup_derelict();
 
     sdl_window main_window;
 
     try
     {
-    main_window = new sdl_window("flatmap", 640, 480);
+        main_window = new sdl_window("flatmap", 640, 480);
     }
     catch (SDLException e)
     {
-        writeln("sdl_window failed with: "~e.GetError());
+        writeln("sdl_window failed with: " ~ e.GetError());
     }
 
-    rectangle rect = new rectangle(0, 0, 50,50, red, main_window.get_renderer());
+    rectangle rect = new rectangle(0, 0, 50, 50, red, main_window.get_renderer());
     rect.centered(main_window.get_size());
     rect.render();
 
-    rectangle rect1 = new rectangle(0, 0, 50,50, blue, main_window.get_renderer());
+    rectangle rect1 = new rectangle(0, 0, 50, 50, blue, main_window.get_renderer());
     rect1.centered(main_window.get_size());
     rect1.offset(rect.get_rect().w, 'l');
     rect1.render();
