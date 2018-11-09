@@ -1,7 +1,8 @@
 import std.random, std.string, std.stdio;
 import std.conv : to;
 import std.typecons : Tuple, tuple;
-import derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.util.loader : SharedLibVersion;
+import derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.util.exception,
+    derelict.util.loader : SharedLibVersion;
 
 struct screen_dimensions
 {
@@ -109,11 +110,29 @@ unittest
 
 }
 
+/* \brief Returns false if we failed to load TTF library.
+ * Returns True otherwise ( fails if we can't load SDL )
+ */
 bool setup_derelict()
 {
-    DerelictSDL2.load(SharedLibVersion(2, 0, 2));
+    try
+    {
+        DerelictSDL2.load(SharedLibVersion(2, 0, 2));
+    }
+    catch (SharedLibLoadException e)
+    {
+        throw new Error(e.msg);
+    }
 
-    DerelictSDL2ttf.load();
+    try
+    {
+        DerelictSDL2ttf.load();
+    }
+    catch (SharedLibLoadException e)
+    {
+        stderr.writeln("Failed to load SDL TTF. Disabling TTF support." ~ e.msg);
+        return false;
+    }
 
     return true;
 }
@@ -140,9 +159,13 @@ void Delay(int secs)
     SDL_Delay(secs);
 }
 
-void Quit()
+void Quit(bool TTF = true)
 {
-    TTF_Quit();
+    if (TTF)
+    {
+        TTF_Quit();
+    }
+
     SDL_Quit();
 }
 
@@ -470,11 +493,13 @@ class key
 
     public
     {
-        this(screen_dimensions dimensions, SDL_Renderer* renderer, int fontsize = 16)
+        this(screen_dimensions dimensions, SDL_Renderer* renderer,
+                bool show_text = true, int fontsize = 16)
         {
             this.font_size = fontsize;
             this.renderer = renderer;
             this.dimensions = dimensions;
+            this.show_text = show_text;
         }
 
         void add(color col, string label)
@@ -501,28 +526,32 @@ class key
                     entry.rect = this.create_rectangle(entry.color);
                 }
 
-                if (entry.rendered_text is null)
+                if (entry.rendered_text is null && this.show_text)
                 {
                     entry.rendered_text = this.create_text(entry.label);
                 }
             }
 
-            longest_label = this.find_longest_label();
-            tallest_label = this.find_tallest_label();
+            if (this.show_text)
+            {
+                longest_label = this.find_longest_label();
+                tallest_label = this.find_tallest_label();
+            }
 
             foreach (ref entry; this.entries)
             {
-                if (entry.rect is null || entry.rendered_text is null)
+                if (this.show_text)
                 {
-                    throw new Exception("Whoops, entries are null");
+                    entry.rendered_text.offset(entry.rendered_text.get_width() + this.margin, 'r');
+                    entry.rendered_text.offset(y_position + tallest_label, 't');
                 }
-
-                entry.rendered_text.offset(entry.rendered_text.get_width() + this.margin, 'r');
-                entry.rendered_text.offset(y_position + tallest_label, 't');
                 entry.rect.offset(longest_label + entry.rect.get_width() + this.margin, 'r');
                 entry.rect.offset(y_position + tallest_label, 't');
 
-                entry.rendered_text.render();
+                if (this.show_text)
+                {
+                    entry.rendered_text.render();
+                }
                 entry.rect.render();
                 y_position += tallest_label + this.margin;
             }
@@ -575,6 +604,8 @@ class key
         Tuple!(color, "color", string, "label", rectangle, "rect", text, "rendered_text")[] entries;
         screen_dimensions dimensions;
         SDL_Renderer* renderer;
+
+        bool show_text = true;
 
         int margin = 5;
         int font_size;

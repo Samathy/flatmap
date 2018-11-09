@@ -80,6 +80,7 @@ int main(string[] args)
     int window_height = 480;
     int total_width;
     bool quit = false;
+    bool show_text = true;
     SDL_Event e;
     File data_file;
 
@@ -105,7 +106,7 @@ int main(string[] args)
 
     //Todo support arguments for screen size
 
-    setup_derelict();
+    show_text = setup_derelict();
 
     sdl_window main_window;
 
@@ -119,8 +120,9 @@ int main(string[] args)
     }
 
     rectangle[] rects;
+    key graph_key;
 
-    key graph_key = new key(main_window.get_size(), main_window.get_renderer());
+    graph_key = new key(main_window.get_size(), main_window.get_renderer(), show_text = show_text);
 
     foreach (data; data_points)
     {
@@ -154,7 +156,7 @@ int main(string[] args)
         Thread.sleep(dur!("msecs")(2));
     }
 
-    Quit();
+    Quit(show_text);
 
     return 0;
 }
