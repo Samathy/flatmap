@@ -22,6 +22,9 @@ All options apart from filename are optional.
 
 ### TODO list
 
+- [ ] Add a scale (which changes depending on block size) to bottom of graph
+- [ ] Add ddoc documentation comments
+- [ ] Implement proper unittesting with d-unit
 - [x] Implement some nice way of closing the window
 - [ ] Support piping in values on stdin
     - [ ] Support continuous updating from stdin values
