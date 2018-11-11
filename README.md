@@ -22,8 +22,8 @@ All options apart from filename are optional.
 
 ### TODO list
 
-- [ ] Move the SDL functions to their own classes/module so that we can mock them out
-      for unittesting.
+- [x] Move the SDL functions to their own classes/module 
+   - [ ] Work out how to properly unittest the classes which use SDL functions.
 - [ ] Add a scale (which changes depending on block size) to bottom of graph
 - [ ] Add ddoc documentation comments
 - [ ] Implement proper unittesting with d-unit
