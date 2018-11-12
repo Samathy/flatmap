@@ -31,7 +31,7 @@ All options apart from filename are optional.
 - [x] Support scrolling display
 - [ ] Support piping in values on stdin
     - [ ] Support continuous updating from stdin values
-- [ ] Support multiple graphs on the same screen
+- [x] Support multiple graphs on the same screen
 - [ ] Support saving image
 - [x] Support specifying block sizes
 - [ ] Support adding labels

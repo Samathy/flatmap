@@ -73,7 +73,7 @@ unittest
 int main(string[] args)
 {
 
-    string filename; //The datafile we're opening
+    string[] filename; //The datafile we're opening
     char delimiter = ' '; //The column delimiter
     int blocksize = 1;
     int multiplier = 0;
@@ -83,25 +83,32 @@ int main(string[] args)
     bool quit = false;
     SDL_Event e;
     File data_file;
+    data_point!(string, int, int)[][] graphs;
 
     getopt(args, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b", &blocksize,
             "multiplier|m", &multiplier, "width|w", &window_width, "height|h", &window_height);
 
-    if (exists(filename))
+    foreach (input_file; filename)
     {
-        data_file.open(filename, "r");
-    }
-    else
-    {
-        writeln("No input file");
-        return 1;
-    }
 
-    data_point!(string, int, int)[] data_points;
+        if (exists(input_file))
+        {
+            data_file.open(input_file, "r");
+        }
+        else
+        {
+            writeln("No input file");
+            return 1;
+        }
 
-    foreach (line; data_file.byLine())
-    {
-        data_points ~= new data_point!(string, int, int)(to!string(line), delimiter);
+        data_point!(string, int, int)[] data_points;
+
+        foreach (line; data_file.byLine())
+        {
+            data_points ~= new data_point!(string, int, int)(to!string(line), delimiter);
+        }
+
+        graphs ~= data_points;
     }
 
     //Todo support arguments for screen size
@@ -120,26 +127,30 @@ int main(string[] args)
     rectangle[] rects;
     key graph_key;
     scale graph_scale;
+    int vertical_offset = 5;
 
     graph_key = new key(main_window.get_size(), main_window.get_renderer(), true);
 
-    graph_scale = new scale(0, 70, main_window.get_size().w,
-            blocksize * multiplier, red, main_window.get_renderer());
-
-    foreach (data; data_points)
+    foreach (graph; graphs)
     {
-        total_width += data.get_end();
-
-        color rect_color = get_random_color();
+        foreach (data; graph)
+        {
+            color rect_color = get_random_color();
 
         rects ~= new rectangle(0, 0, data.get_end() * blocksize * multiplier, 50,
                 rect_color, main_window.get_renderer());
         //rects[rects.length-1].centered(main_window.get_size());
         rects[$ - 1].offset(data.get_start() * blocksize * multiplier, 'l');
+        rects[$ -1].offset(vertical_offset, 't');
         rects[$ - 1].render();
-
         graph_key.add(rect_color, data.get_label());
+
+        }
+        vertical_offset += 50;
     }
+
+    graph_scale = new scale(0, 20+vertical_offset, main_window.get_size().w,
+            blocksize * multiplier, red, main_window.get_renderer());
 
     graph_key.render();
     graph_scale.render();
