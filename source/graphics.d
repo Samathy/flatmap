@@ -12,10 +12,10 @@ struct screen_dimensions
 
 alias color = SDL_Color;
 
-static const color red = {255, 0, 0, 255};
-static const color blue = {0, 255, 0, 255};
-static const color green = {0, 0, 255, 255};
-static const color black = {0, 0, 0, 255};
+static immutable color red = {255, 0, 0, 255};
+static immutable color blue = {0, 255, 0, 255};
+static immutable color green = {0, 0, 255, 255};
+static immutable color black = {0, 0, 0, 255};
 
 static SDL SDL_;
 static TTF TTF_;
@@ -143,14 +143,14 @@ class rectangle
             }
         }
 
-        @safe pure nothrow const SDL_Rect get_rect()
+        @safe pure nothrow SDL_Rect get_rect()
         {
             return this.rect;
         }
 
-        @safe pure nothrow const int get_width()
+        @safe pure nothrow immutable(int) get_width()
         {
-            return this.rect_width;
+            return immutable(int)(this.rect_width);
         }
     }
 
@@ -280,24 +280,24 @@ class text
             }
         }
 
-        @safe pure nothrow const int get_x()
+        @safe pure nothrow immutable(int) get_x()
         {
-            return this.x;
+            return immutable(int)(this.x);
         }
 
-        @safe pure nothrow const int get_y()
+        @safe pure nothrow immutable(int) get_y()
         {
-            return this.y;
+            return immutable(int)(this.y);
         }
 
-        @safe pure nothrow const int get_width()
+        @safe pure nothrow immutable(int) get_width()
         {
-            return this.width;
+            return immutable(int)(this.width);
         }
 
-        @safe pure nothrow const int get_height()
+        @safe pure nothrow immutable(int) get_height()
         {
-            return this.height;
+            return immutable(int)(this.height);
         }
     }
 
@@ -490,8 +490,8 @@ class sdl_window
         }
 
         this(string title, int x = SDL_WINDOWPOS_UNDEFINED, int y = SDL_WINDOWPOS_UNDEFINED,
-                const int width = 640, const int height = 480,
-                const bool init = true, const bool has_surface = false)
+                immutable(int) width = 640, immutable(int) height = 480,
+                immutable(bool) init = true, immutable(bool) has_surface = false)
         {
             this.title = title;
             this.window_x = x;
@@ -527,13 +527,12 @@ class sdl_window
             SDL_.RenderClear(this.renderer);
         }
 
-        // I'd like to make these return const-only pointers. but idk how to do that.
-        @safe pure nothrow string get_title()
+        @safe pure nothrow immutable(string) get_title()
         {
             return this.title.dup();
         }
 
-        @safe pure nothrow screen_dimensions get_size()
+        @safe pure nothrow immutable(screen_dimensions) get_size()
         {
             screen_dimensions s;
             s.w = this.window_width;

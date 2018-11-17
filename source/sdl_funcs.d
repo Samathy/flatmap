@@ -68,8 +68,8 @@ class SDL
             SDL_Quit();
         }
 
-        SDL_Window* CreateWindow(const char* title, int x, int y, int w, int h,
-                SDL_WindowFlags flags)
+        SDL_Window* CreateWindow(immutable(char)* title, int x, int y, int w,
+                int h, SDL_WindowFlags flags)
         {
             SDL_Window* win = null;
 

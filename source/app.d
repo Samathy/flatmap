@@ -130,8 +130,8 @@ int main(string[] args)
         rects ~= new rectangle(0, 0, data.get_end() * blocksize, 50, rect_color,
                 main_window.get_renderer());
         //rects[rects.length-1].centered(main_window.get_size());
-        rects[rects.length - 1].offset(data.get_start() * blocksize, 'l');
-        rects[rects.length - 1].render();
+        rects[$ - 1].offset(data.get_start() * blocksize, 'l');
+        rects[$ - 1].render();
 
         graph_key.add(rect_color, data.get_label());
     }
