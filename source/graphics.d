@@ -75,7 +75,109 @@ class SDLException : Exception
     }
 }
 
-class rectangle
+interface renderable_object
+{
+    public
+    {
+
+        @safe pure nothrow void centered(screen_dimensions s);
+
+        @safe pure nothrow void offset(int offset, char alignment);
+
+        void render();
+    }
+}
+
+class renderable_abstract_object : renderable_object
+{
+    public
+    {
+        this(int x, int y, int width, int height, color col, SDL_Renderer* renderer)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.col = col;
+            this.renderer = renderer;
+        }
+
+        @safe pure nothrow void centered(screen_dimensions s)
+        {
+            int new_x;
+            int new_y;
+
+            new_y = (s.h - this.height) / 2;
+            new_x = (s.w - this.width) / 2;
+
+            this.x = new_x;
+            this.y = new_y;
+
+            return;
+        }
+
+        @safe pure nothrow void offset(int offset, char alignment)
+        {
+            if (alignment == 'l')
+            {
+                this.x += offset;
+            }
+            else if (alignment == 'r')
+            {
+                this.x -= offset;
+            }
+
+            else if (alignment == 't')
+            {
+                this.y += offset;
+            }
+            else if (alignment == 'b')
+            {
+                this.y -= offset;
+            }
+        }
+
+        void render()
+        {
+        }
+
+        version (unittest)
+        {
+        }
+        else
+        {
+        }
+
+        private
+        {
+        }
+        int x;
+        int y;
+        int width;
+        int height;
+        color col;
+        SDL_Renderer* renderer;
+    }
+}
+
+@("Test renderable_abstract_object")
+unittest
+{
+    auto o = new renderable_abstract_object(10, 10, 50, 50, red, null);
+    screen_dimensions screen = {200, 200};
+
+    assert(o.x == 10);
+    assert(o.y == 10);
+    assert(o.width == 50);
+    assert(o.height == 50);
+
+    o.centered(screen);
+
+    assert(o.x == 75);
+    assert(o.y == 75);
+}
+
+class rectangle : renderable_abstract_object
 {
     public
     {
