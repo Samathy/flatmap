@@ -140,17 +140,10 @@ class renderable_abstract_object : renderable_object
         void render()
         {
         }
-
-        version (unittest)
-        {
-        }
-        else
-        {
-        }
+    }
 
         private
         {
-        }
         int x;
         int y;
         int width;
@@ -175,6 +168,24 @@ unittest
 
     assert(o.x == 75);
     assert(o.y == 75);
+
+    o.x = 10;
+    o.offset(10, 'r');
+    assert(o.x == 10-10);
+
+    o.x = 10;
+    o.offset(10, 'l');
+    assert(o.x == 10+10);
+
+    o.y = 10;
+    o.offset(10, 't');
+    assert(o.y == 10+10);
+
+    o.y = 10;
+    o.offset(10, 'b');
+    assert(o.y == 10-10);
+
+
 }
 
 class rectangle : renderable_abstract_object
@@ -183,57 +194,18 @@ class rectangle : renderable_abstract_object
     {
         this(int x, int y, int width, int height, color col, SDL_Renderer* renderer)
         {
-
-            this.rect_x = x;
-            this.rect_y = y;
-            this.rect_width = width;
-            this.rect_height = height;
-            this.col = col;
-
-            this.renderer = renderer;
+            super(x,y,width, height, col, renderer);
 
             this.create_rect();
         }
 
-        @safe pure nothrow void centered(screen_dimensions s)
+        override void render()
         {
-            int new_x;
-            int new_y;
+            this.rect.x = this.x;
+            this.rect.y = this.y;
+            this.rect.h = this.height;
+            this.rect.w = this.width;
 
-            new_y = (s.h - this.rect_height) / 2;
-            new_x = (s.w - this.rect_width) / 2;
-
-            this.rect_x = new_x;
-            this.rect_y = new_y;
-            this.rect.x = new_x;
-            this.rect.y = new_y;
-
-            return;
-        }
-
-        @safe pure nothrow void offset(int offset, char alignment)
-        {
-            if (alignment == 'l')
-            {
-                this.rect.x += offset;
-            }
-            else if (alignment == 'r')
-            {
-                this.rect.x -= offset;
-            }
-
-            else if (alignment == 't')
-            {
-                this.rect.y += offset;
-            }
-            else if (alignment == 'b')
-            {
-                this.rect.y -= offset;
-            }
-        }
-
-        void render()
-        {
             if ((SDL_.SetRenderDrawColor(this.renderer, this.col.r, this.col.b,
                     this.col.g, this.col.a)) < 0)
             {
@@ -245,14 +217,16 @@ class rectangle : renderable_abstract_object
             }
         }
 
-        @safe pure nothrow SDL_Rect get_rect()
+        @safe nothrow SDL_Rect get_rect()
         {
+            update_rect();
             return this.rect;
         }
 
-        @safe pure nothrow immutable(int) get_width()
+        @safe nothrow immutable(int) get_width()
         {
-            return immutable(int)(this.rect_width);
+            update_rect();
+            return immutable(int)(this.width);
         }
     }
 
@@ -260,21 +234,23 @@ class rectangle : renderable_abstract_object
     {
         void create_rect()
         {
-            this.rect.x = this.rect_x;
-            this.rect.y = this.rect_y;
-            this.rect.w = this.rect_width;
-            this.rect.h = this.rect_height;
+            this.rect.x = this.x;
+            this.rect.y = this.y;
+            this.rect.w = this.width;
+            this.rect.h = this.height;
 
         }
 
-        SDL_Rect rect;
-        SDL_Renderer* renderer;
-        color col;
+        @safe nothrow
+        void update_rect()
+        {
+            this.rect.x = this.x;
+            this.rect.y = this.y;
+            this.rect.h = this.height;
+            this.rect.w = this.width;
+        }
 
-        int rect_x;
-        int rect_y;
-        int rect_width;
-        int rect_height;
+        SDL_Rect rect;
     }
 
 }
@@ -322,13 +298,12 @@ class text
                 SDL_Renderer* renderer, SDL_Rect* clip = null, double angle = 0.0,
                 SDL_Point* center = null, SDL_RendererFlip flip = SDL_FLIP_NONE)
         {
-            this.renderer = renderer;
-            this.x = x;
-            this.y = y;
+
+            super(x,y,0,0,col, renderer);
+
             this.clip = clip;
             this.angle = angle;
             this.flip = flip;
-            this.text_color = col;
             this.font_size = fontsize;
 
             this.font = TTF_.OpenFont("/usr/share/fonts/TTF/FreeMonoBold.ttf", this.font_size);
@@ -338,8 +313,12 @@ class text
 
         ~this()
         {
-            SDL_.FreeSurface(text_surface);
+            /*
+            Presumably these just call free() on the memory, so we can leave them
+            out. Calling them causes a segfault on destructing this object.
+            SDL_.FreeSurface(this.text_surface);
             SDL_.DestroyTexture(this.texture);
+            */
         }
 
         void load_rendered_text(string text, color text_color = black)
@@ -352,7 +331,7 @@ class text
             this.height = text_surface.h;
         }
 
-        void render()
+        override void render()
         {
             SDL_Rect texture_space = {this.x, this.y, this.width, this.height};
 
@@ -364,22 +343,6 @@ class text
 
             SDL_.RenderCopyEx(this.renderer, this.texture, this.clip,
                     &texture_space, this.angle, this.center, this.flip);
-        }
-
-        void offset(int offset, char alignment)
-        {
-            if (alignment == 'r')
-            {
-                this.x -= offset;
-            }
-            else if (alignment == 't')
-            {
-                this.y += offset;
-            }
-            else
-            {
-                throw new Exception("E_NOTIMPL");
-            }
         }
 
         @safe pure nothrow immutable(int) get_x()
@@ -406,21 +369,14 @@ class text
     private
     {
         SDL_Surface* text_surface;
-        SDL_Renderer* renderer;
         SDL_Texture* texture;
         SDL_Rect* clip;
         SDL_Point* center;
         SDL_RendererFlip flip = SDL_FLIP_NONE;
         TTF_Font* font;
 
-        color text_color;
-
         int font_size;
         double angle;
-        int width;
-        int height;
-        int x;
-        int y;
     }
 }
 
@@ -634,7 +590,7 @@ class sdl_window
             return this.title.dup();
         }
 
-        @safe pure nothrow immutable(screen_dimensions) get_size()
+        @safe pure nothrow screen_dimensions get_size()
         {
             screen_dimensions s;
             s.w = this.window_width;
