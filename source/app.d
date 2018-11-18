@@ -76,6 +76,7 @@ int main(string[] args)
     string filename; //The datafile we're opening
     char delimiter = ' '; //The column delimiter
     int blocksize = 1;
+    int multiplier = 0;
     int window_width = 640;
     int window_height = 480;
     int total_width;
@@ -83,8 +84,8 @@ int main(string[] args)
     SDL_Event e;
     File data_file;
 
-    getopt(args, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b",
-            &blocksize, "width|w", &window_width, "height|h", &window_height);
+    getopt(args, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b", &blocksize,
+            "multiplier|m", &multiplier, "width|w", &window_width, "height|h", &window_height);
 
     if (exists(filename))
     {
@@ -122,7 +123,8 @@ int main(string[] args)
 
     graph_key = new key(main_window.get_size(), main_window.get_renderer(), true);
 
-    graph_scale = new scale(0,70, main_window.get_size().w, blocksize, red, main_window.get_renderer());
+    graph_scale = new scale(0, 70, main_window.get_size().w,
+            blocksize * multiplier, red, main_window.get_renderer());
 
     foreach (data; data_points)
     {
@@ -130,10 +132,10 @@ int main(string[] args)
 
         color rect_color = get_random_color();
 
-        rects ~= new rectangle(0, 0, data.get_end() * blocksize, 50, rect_color,
-                main_window.get_renderer());
+        rects ~= new rectangle(0, 0, data.get_end() * blocksize * multiplier, 50,
+                rect_color, main_window.get_renderer());
         //rects[rects.length-1].centered(main_window.get_size());
-        rects[$ - 1].offset(data.get_start() * blocksize, 'l');
+        rects[$ - 1].offset(data.get_start() * blocksize * multiplier, 'l');
         rects[$ - 1].render();
 
         graph_key.add(rect_color, data.get_label());
