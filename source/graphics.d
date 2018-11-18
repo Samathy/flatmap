@@ -142,8 +142,8 @@ class renderable_abstract_object : renderable_object
         }
     }
 
-        private
-        {
+    private
+    {
         int x;
         int y;
         int width;
@@ -171,20 +171,19 @@ unittest
 
     o.x = 10;
     o.offset(10, 'r');
-    assert(o.x == 10-10);
+    assert(o.x == 10 - 10);
 
     o.x = 10;
     o.offset(10, 'l');
-    assert(o.x == 10+10);
+    assert(o.x == 10 + 10);
 
     o.y = 10;
     o.offset(10, 't');
-    assert(o.y == 10+10);
+    assert(o.y == 10 + 10);
 
     o.y = 10;
     o.offset(10, 'b');
-    assert(o.y == 10-10);
-
+    assert(o.y == 10 - 10);
 
 }
 
@@ -194,7 +193,7 @@ class rectangle : renderable_abstract_object
     {
         this(int x, int y, int width, int height, color col, SDL_Renderer* renderer)
         {
-            super(x,y,width, height, col, renderer);
+            super(x, y, width, height, col, renderer);
 
             this.create_rect();
         }
@@ -241,8 +240,7 @@ class rectangle : renderable_abstract_object
 
         }
 
-        @safe nothrow
-        void update_rect()
+        @safe nothrow void update_rect()
         {
             this.rect.x = this.x;
             this.rect.y = this.y;
@@ -290,7 +288,37 @@ unittest
     rect.render();
 }
 
-class text
+class line : renderable_abstract_object
+{
+
+    public
+    {
+        this(int x, int y, int x2, int y2, color col, SDL_Renderer* renderer)
+        {
+
+            super(x, y, 0, 0, col, renderer);
+
+            this.x2 = x2;
+            this.y2 = y2;
+
+        }
+
+        override void render()
+        {
+            SDL_.SetRenderDrawColor(this.renderer, this.col.r, this.col.g, this.col.b, this.col.a);
+            SDL_.RenderDrawLine(this.renderer, this.x, this.y, this.x2, this.y2);
+        }
+    }
+
+    private
+    {
+        int x2;
+        int y2;
+    }
+
+}
+
+class text : renderable_abstract_object
 {
     public
     {
@@ -299,7 +327,7 @@ class text
                 SDL_Point* center = null, SDL_RendererFlip flip = SDL_FLIP_NONE)
         {
 
-            super(x,y,0,0,col, renderer);
+            super(x, y, 0, 0, col, renderer);
 
             this.clip = clip;
             this.angle = angle;
@@ -534,6 +562,59 @@ class key
 
         int margin = 5;
         int font_size;
+    }
+}
+
+class scale
+{
+    public
+    {
+        this(int x, int y, int length, int tic_distance, color col, SDL_Renderer* renderer)
+        {
+            this.x = x;
+            this.y = y;
+            this.thickness = thickness;
+            this.length = length;
+            this.col = col;
+            this.renderer = renderer;
+
+            create_tics(tic_distance);
+
+            this.xline = new line(this.x, this.y, this.length, this.y, this.col, this.renderer);
+        }
+
+        void render()
+        {
+
+            foreach (tic; this.tics)
+            {
+                tic.render();
+            }
+
+            this.xline.render();
+        }
+
+    }
+    private
+    {
+
+        void create_tics(int tic_distance)
+        {
+            for (int i = this.x; i < this.length; i += tic_distance)
+            {
+                this.tics ~= new line(i, this.y, i, this.y - 10, this.col, this.renderer);
+            }
+        }
+
+        line[] tics;
+        line xline;
+
+        int x;
+        int y;
+        int thickness;
+        int length;
+        color col;
+        SDL_Renderer* renderer;
     }
 }
 

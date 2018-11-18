@@ -139,6 +139,11 @@ class SDL
             return SDL_RenderFillRect(ren, rect);
         }
 
+        int RenderDrawLine(SDL_Renderer* ren, int x, int y, int x2, int y2)
+        {
+            return SDL_RenderDrawLine(ren, x, y, x2, y2);
+        }
+
         void FreeSurface(SDL_Surface* surface)
         {
             SDL_FreeSurface(surface);

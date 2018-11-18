@@ -118,8 +118,11 @@ int main(string[] args)
 
     rectangle[] rects;
     key graph_key;
+    scale graph_scale;
 
     graph_key = new key(main_window.get_size(), main_window.get_renderer(), true);
+
+    graph_scale = new scale(0,70, main_window.get_size().w, blocksize, red, main_window.get_renderer());
 
     foreach (data; data_points)
     {
@@ -137,6 +140,8 @@ int main(string[] args)
     }
 
     graph_key.render();
+
+    graph_scale.render();
 
     while (!quit)
     {
