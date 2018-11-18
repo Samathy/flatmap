@@ -341,12 +341,8 @@ class text : renderable_abstract_object
 
         ~this()
         {
-            /*
-            Presumably these just call free() on the memory, so we can leave them
-            out. Calling them causes a segfault on destructing this object.
             SDL_.FreeSurface(this.text_surface);
             SDL_.DestroyTexture(this.texture);
-            */
         }
 
         void load_rendered_text(string text, color text_color = black)
@@ -453,6 +449,15 @@ class key
             this.renderer = renderer;
             this.dimensions = dimensions;
             this.show_text = show_text;
+        }
+
+        ~this()
+        {
+            foreach (entry; this.entries)
+            {
+                destroy(entry.rendered_text);
+                destroy(entry.rect);
+            }
         }
 
         void add(color col, string label)
@@ -581,6 +586,16 @@ class scale
             create_tics(tic_distance);
 
             this.xline = new line(this.x, this.y, this.length, this.y, this.col, this.renderer);
+        }
+
+        ~this()
+        {
+            foreach (t; this.tics)
+            {
+                destroy(t);
+            }
+
+            destroy(this.xline);
         }
 
         void render()

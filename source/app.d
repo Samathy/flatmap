@@ -160,5 +160,22 @@ int main(string[] args)
         Thread.sleep(dur!("msecs")(2));
     }
 
+    /* We have to call destroy on all our SDL-using objects before SDL gets
+     * quitted. Because the destructors don't get called in a consistent order and calling
+     * some free-ing SDL functions (FreeSurface ect) after SDL_Quit() is called will cause segfaults.
+     * 
+     * Just calling SDL_Quit and expecting it to clean up our memory is probably okay. But we should be clean.
+     * There is probably some cleverer way of doing this.
+     */
+    .destroy(graph_key);
+    destroy(graph_scale);
+
+    foreach (rect; rects)
+    {
+        destroy(rect);
+    }
+
+    destroy(main_window);
+
     return 0;
 }
