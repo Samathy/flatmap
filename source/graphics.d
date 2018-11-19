@@ -462,8 +462,8 @@ class key
 
         void add(color col, string label)
         {
-            entries ~= tuple!("color", "label", "rect", "rendered_text")(col,
-                    label, cast(rectangle) null, cast(text) null);
+            entries ~= tuple!("color", "label", "rect", "rendered_text", "offset_calculated")(col,
+                    label, cast(rectangle) null, cast(text) null, false);
         }
 
         void remove(string label)
@@ -498,13 +498,19 @@ class key
 
             foreach (ref entry; this.entries)
             {
-                if (this.show_text)
+                if (!entry.offset_calculated)
                 {
-                    entry.rendered_text.offset(entry.rendered_text.get_width() + this.margin, 'r');
-                    entry.rendered_text.offset(y_position + tallest_label, 't');
+                    if (this.show_text)
+                    {
+                        entry.rendered_text.offset(entry.rendered_text.get_width() + this.margin,
+                                'r');
+                        entry.rendered_text.offset(y_position + tallest_label, 't');
+                    }
+                    entry.rect.offset(longest_label + entry.rect.get_width() + this.margin, 'r');
+                    entry.rect.offset(y_position + tallest_label, 't');
+
+                    entry.offset_calculated = true;
                 }
-                entry.rect.offset(longest_label + entry.rect.get_width() + this.margin, 'r');
-                entry.rect.offset(y_position + tallest_label, 't');
 
                 if (this.show_text)
                 {
@@ -559,7 +565,8 @@ class key
             return tallest_label;
         }
 
-        Tuple!(color, "color", string, "label", rectangle, "rect", text, "rendered_text")[] entries;
+        Tuple!(color, "color", string, "label", rectangle, "rect", text,
+                "rendered_text", bool, "offset_calculated")[] entries;
         screen_dimensions dimensions;
         SDL_Renderer* renderer;
 

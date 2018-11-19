@@ -142,8 +142,22 @@ int main(string[] args)
     }
 
     graph_key.render();
-
     graph_scale.render();
+
+    //We should probably prevent scrolling the graph off the screen, at some point.
+    auto update_rect_locations = delegate void(int value, char alignment) {
+        foreach (rect; rects)
+        {
+            rect.offset(value, alignment);
+        }
+    };
+
+    auto render_rects = delegate void() {
+        foreach (rect; rects)
+        {
+            rect.render();
+        }
+    };
 
     while (!quit)
     {
@@ -154,7 +168,30 @@ int main(string[] args)
             {
                 quit = true;
             }
+            else if (e.type == SDL_KEYDOWN)
+            {
+                switch (e.key.keysym.sym)
+                {
+                case SDLK_RIGHT:
+                    update_rect_locations(10, 'r');
+                    break;
+                case SDLK_LEFT:
+                    update_rect_locations(10, 'l');
+                    break;
+                case SDLK_q:
+                    quit = true;
+                    break;
+                default:
+                    break;
+                }
+            }
         }
+
+        main_window.clear();
+
+        graph_key.render();
+        graph_scale.render();
+        render_rects();
 
         main_window.update();
         Thread.sleep(dur!("msecs")(2));
@@ -167,7 +204,7 @@ int main(string[] args)
      * Just calling SDL_Quit and expecting it to clean up our memory is probably okay. But we should be clean.
      * There is probably some cleverer way of doing this.
      */
-    .destroy(graph_key);
+    destroy(graph_key);
     destroy(graph_scale);
 
     foreach (rect; rects)

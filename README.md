@@ -28,6 +28,7 @@ All options apart from filename are optional.
 - [ ] Add ddoc documentation comments
 - [ ] Implement proper unittesting with d-unit
 - [x] Implement some nice way of closing the window
+- [x] Support scrolling display
 - [ ] Support piping in values on stdin
     - [ ] Support continuous updating from stdin values
 - [ ] Support multiple graphs on the same screen
