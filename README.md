@@ -64,5 +64,8 @@ e.g Given a block count of 1 and a block size of 1 with a multiplier of 1 the
 - [x] Support specifying block sizes
 - [x] Support adding labels
 - [x] Support a key
+- [x] Display key below graphs
+- [ ] Add option to display key horizontally.
 - [ ] Move the drawing to make sure it stays centered
 - [ ] zoom support
+- [ ] Get rid of the numerous constant 'magic numbers'

@@ -472,6 +472,7 @@ class key
             this.renderer = renderer;
             this.dimensions = dimensions;
             this.show_text = show_text;
+            this.y_offset = 0;
         }
 
         ~this()
@@ -480,6 +481,18 @@ class key
             {
                 destroy(entry.rendered_text);
                 destroy(entry.rect);
+            }
+        }
+
+        void offset(int offset, char alignment)
+        {
+            switch (alignment)
+            {
+            case 't':
+                this.y_offset = offset;
+                break;
+            default:
+                throw new Exception("ENOTIMPL");
             }
         }
 
@@ -501,7 +514,7 @@ class key
 
         void render()
         {
-            int y_position = 0;
+            int y_position = 0 + this.y_offset;
 
             int longest_label;
             int tallest_label;
@@ -692,6 +705,7 @@ class key
 
         int margin = 5;
         int font_size;
+        int y_offset;
     }
 }
 

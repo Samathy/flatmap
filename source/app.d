@@ -151,6 +151,8 @@ int main(string[] args)
         vertical_offset += 50;
     }
 
+    graph_key.offset(vertical_offset + 20, 't');
+
     if (blocksize >= 15 || multiplier >= 15 || blocksize + multiplier >= 15)
         graph_scale = new scale(0, 20 + vertical_offset, total_width, blocksize,
                 multiplier, true, red, main_window.get_renderer());
