@@ -499,9 +499,9 @@ class key
         void add(color col, string label)
         {
 
-            if(search_for_label(label))
+            if (search_for_label(label))
             {
-                label = label~"_"~to!string(search_for_label(label));
+                label = label ~ "_" ~ to!string(search_for_label(label));
             }
 
             entries ~= tuple!("color", "label", "rect", "rendered_text", "offset_calculated")(col,
@@ -571,18 +571,20 @@ class key
         {
             int similar_labels;
 
-            foreach(entry; entries)
+            foreach (entry; entries)
             {
                 string entry_label = entry.label;
 
                 int i;
-                while(entry_label[$-i .. $].isNumeric())
-                { i++; }
+                while (entry_label[$ - i .. $].isNumeric())
+                {
+                    i++;
+                }
 
-                if(i>0)
-                    entry_label = entry_label[$-i .. $];
+                if (i > 0)
+                    entry_label = entry_label[$ - i .. $];
 
-                if( entry_label == label )
+                if (entry_label == label)
                     similar_labels++;
             }
             return similar_labels;
@@ -602,8 +604,15 @@ class key
             //set to enable printing the labels
             static immutable bool enable_print = false;
 
-            auto print_all = delegate(){ static if(enable_print) {writeln("----------"); foreach(entry; k.entries) writeln(entry.label);} };
-            
+            auto print_all = delegate() {
+                static if (enable_print)
+                {
+                    writeln("----------");
+                    foreach (entry; k.entries)
+                        writeln(entry.label);
+                }
+            };
+
             k.add(red, "hello");
 
             assert(k.entries[0].label == "hello");
@@ -633,7 +642,6 @@ class key
             assert(k.entries[2].label == "hello200");
             assert(k.entries[3].label == "hello200_1");
             assert(k.entries[4].label == "1hello");
-
 
             k.add(red, "hello1");
             print_all();
@@ -713,7 +721,8 @@ class scale
 {
     public
     {
-        this(int x, int y, int length, int tic_distance, int multiplier, bool tic_labels, color col, SDL_Renderer* renderer)
+        this(int x, int y, int length, int tic_distance, int multiplier,
+                bool tic_labels, color col, SDL_Renderer* renderer)
         {
             this.x = x;
             this.y = y;
@@ -734,7 +743,7 @@ class scale
                 destroy(t);
             }
 
-            foreach(l; this.labels)
+            foreach (l; this.labels)
             {
                 destroy(l);
             }
@@ -782,7 +791,7 @@ class scale
                 tic.render();
             }
 
-            foreach(label; this.labels)
+            foreach (label; this.labels)
                 label.render();
 
             this.xline.render();
@@ -794,13 +803,14 @@ class scale
 
         void create_tics(int tic_distance, int multiplier, bool tic_labels)
         {
-            for (int i = this.x; i < this.length; i += tic_distance*multiplier)
+            for (int i = this.x; i < this.length; i += tic_distance * multiplier)
             {
                 this.tics ~= new line(i, this.y, i, this.y - 10, this.col, this.renderer);
 
-                if(tic_labels)
+                if (tic_labels)
                 {
-                    this.labels ~= new text(to!string(i/multiplier), i, this.y+5, this.col, 10, this.renderer);
+                    this.labels ~= new text(to!string(i / multiplier), i,
+                            this.y + 5, this.col, 10, this.renderer);
                 }
             }
 
