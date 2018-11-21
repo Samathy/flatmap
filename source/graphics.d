@@ -462,6 +462,12 @@ class key
 
         void add(color col, string label)
         {
+
+            if(search_for_label(label))
+            {
+                label = label~"_"~to!string(search_for_label(label));
+            }
+
             entries ~= tuple!("color", "label", "rect", "rendered_text", "offset_calculated")(col,
                     label, cast(rectangle) null, cast(text) null, false);
         }
@@ -525,6 +531,95 @@ class key
 
     private
     {
+        int search_for_label(string label)
+        {
+            int similar_labels;
+
+            foreach(entry; entries)
+            {
+                string entry_label = entry.label;
+
+                int i;
+                while(entry_label[$-i .. $].isNumeric())
+                { i++; }
+
+                if(i>0)
+                    entry_label = entry_label[$-i .. $];
+
+                if( entry_label == label )
+                    similar_labels++;
+            }
+            return similar_labels;
+        }
+
+        unittest
+        {
+            /*If we have numbers at the end of the labels, theres a good
+             * chance that the de-duplication logic will will not give us what
+             * we wanted.
+             */
+
+            screen_dimensions s = {640, 480};
+            auto main_window = new sdl_window("", 0, 0, 640, 480);
+            auto k = new key(s, main_window.get_renderer());
+
+            //set to enable printing the labels
+            static immutable bool enable_print = false;
+
+            auto print_all = delegate(){ static if(enable_print) {writeln("----------"); foreach(entry; k.entries) writeln(entry.label);} };
+            
+            k.add(red, "hello");
+
+            assert(k.entries[0].label == "hello");
+
+            k.add(red, "hello");
+            print_all();
+            assert(k.entries[0].label == "hello");
+            assert(k.entries[1].label == "hello_1");
+
+            k.add(red, "hello200");
+            print_all();
+            assert(k.entries[0].label == "hello");
+            assert(k.entries[1].label == "hello_1");
+            assert(k.entries[2].label == "hello200");
+
+            k.add(red, "hello200");
+            print_all();
+            assert(k.entries[0].label == "hello");
+            assert(k.entries[1].label == "hello_1");
+            assert(k.entries[2].label == "hello200");
+            assert(k.entries[3].label == "hello200_1");
+
+            k.add(red, "1hello");
+            print_all();
+            assert(k.entries[0].label == "hello");
+            assert(k.entries[1].label == "hello_1");
+            assert(k.entries[2].label == "hello200");
+            assert(k.entries[3].label == "hello200_1");
+            assert(k.entries[4].label == "1hello");
+
+
+            k.add(red, "hello1");
+            print_all();
+            assert(k.entries[0].label == "hello");
+            assert(k.entries[1].label == "hello_1");
+            assert(k.entries[2].label == "hello200");
+            assert(k.entries[3].label == "hello200_1");
+            assert(k.entries[4].label == "1hello");
+            assert(k.entries[5].label == "hello1");
+
+            k.add(red, "hello1");
+            print_all();
+            assert(k.entries[0].label == "hello");
+            assert(k.entries[1].label == "hello_1");
+            assert(k.entries[2].label == "hello200");
+            assert(k.entries[3].label == "hello200_1");
+            assert(k.entries[4].label == "1hello");
+            assert(k.entries[5].label == "hello1");
+            assert(k.entries[6].label == "hello1_1");
+
+        }
+
         rectangle create_rectangle(color col)
         {
             return new rectangle(this.dimensions.w, 0, 50, this.font_size, col, this.renderer);
@@ -581,7 +676,7 @@ class scale
 {
     public
     {
-        this(int x, int y, int length, int tic_distance, color col, SDL_Renderer* renderer)
+        this(int x, int y, int length, int tic_distance, bool tic_labels, color col, SDL_Renderer* renderer)
         {
             this.x = x;
             this.y = y;
@@ -590,7 +685,7 @@ class scale
             this.col = col;
             this.renderer = renderer;
 
-            create_tics(tic_distance);
+            create_tics(tic_distance, tic_labels);
 
             this.xline = new line(this.x, this.y, this.length, this.y, this.col, this.renderer);
         }
@@ -600,6 +695,11 @@ class scale
             foreach (t; this.tics)
             {
                 destroy(t);
+            }
+
+            foreach(l; this.labels)
+            {
+                destroy(l);
             }
 
             destroy(this.xline);
@@ -613,6 +713,9 @@ class scale
                 tic.render();
             }
 
+            foreach(label; this.labels)
+                label.render();
+
             this.xline.render();
         }
 
@@ -620,14 +723,21 @@ class scale
     private
     {
 
-        void create_tics(int tic_distance)
+        void create_tics(int tic_distance, bool tic_labels)
         {
             for (int i = this.x; i < this.length; i += tic_distance)
             {
                 this.tics ~= new line(i, this.y, i, this.y - 10, this.col, this.renderer);
+
+                if(tic_labels)
+                {
+                    this.labels ~= new text(to!string(i), i, this.y+5, this.col, 10, this.renderer);
+                }
             }
+
         }
 
+        text[] labels;
         line[] tics;
         line xline;
 
