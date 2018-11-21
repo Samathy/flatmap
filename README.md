@@ -34,7 +34,7 @@ All options apart from filename are optional.
 - [x] Support multiple graphs on the same screen
 - [ ] Support saving image
 - [x] Support specifying block sizes
-- [ ] Support adding labels
+- [x] Support adding labels
 - [x] Support a key
 - [ ] Move the drawing to make sure it stays centered
 - [ ] zoom support
