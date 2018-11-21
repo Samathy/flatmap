@@ -20,6 +20,34 @@ Flatmap can be ran as such:
 
 All options apart from filename are optional.
 
+##### A note on blocksize and multiplier.
+
+One can combine the blocksize and multiplier flags to display the graph in the easiest way.
+The blocksize (defaulting to 1) is multiplied by the 'block count' field of the data file.
+
+e.g Given a datapoint with an offset of 0 and a block count of 1, with a block
+    size of 10 will result in a 10(bit) block displayed.  The scale will show 0
+    -> 10 and fill a rectangle between 0 and 10, since it is 10(bits) large, or 1 block (of 10).
+    Given a datapoint with an offset of 0 and a block count of 10 with block
+    size of 1 will show a scale from 0, to 1, but visually, the size of the
+    displayed rectangle will be the same as the first example, however, the
+    scale will include tics at intervals of 1. The data is interpreted as 10 blocks of 1.
+
+In essence, the block size parameter exists to display the correct values on
+the scale, and interpret the block count data values correctly.
+
+Using the multiplier parameter one can maintain a scale reading in block sizes,
+but increase and decrease the size of displayed blocks, possibly making it
+easier to display data with particularly large, or small block sizes.
+
+e.g Given a block count of 1 and a block size of 1 with a multiplier of 1 the
+    scale displays a block from 0 -> 1, however, the size of the displayed block is
+    uselessly small.
+    Increasing the multiplier to 100 increases the visual size of the block by 100,
+    but maintains a scale reading 0 -> 1.
+    Negative multipliers do not work at this time. It is suggested that you
+    re-organise your data's block sizes.
+
 ### TODO list
 
 - [x] Move the SDL functions to their own classes/module 
