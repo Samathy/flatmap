@@ -137,25 +137,26 @@ int main(string[] args)
         {
             color rect_color = get_random_color();
 
-        rects ~= new rectangle(0, 0, data.get_end() * blocksize * multiplier, 50,
-                rect_color, main_window.get_renderer());
-        //rects[rects.length-1].centered(main_window.get_size());
-        rects[$ - 1].offset(data.get_start() * blocksize * multiplier, 'l');
-        rects[$ -1].offset(vertical_offset, 't');
-        rects[$ - 1].render();
-        graph_key.add(rect_color, data.get_label());
+            rects ~= new rectangle(0, 0, data.get_end() * blocksize * multiplier,
+                    50, rect_color, main_window.get_renderer());
+            //rects[rects.length-1].centered(main_window.get_size());
+            rects[$ - 1].offset(data.get_start() * blocksize * multiplier, 'l');
+            rects[$ - 1].offset(vertical_offset, 't');
+            rects[$ - 1].render();
+            graph_key.add(rect_color, data.get_label());
+
+            total_width += rects[$ - 1].get_width();
 
         }
         vertical_offset += 50;
     }
 
-    if (blocksize >= 15 || multiplier >= 15)
-        graph_scale = new scale(0, 20+vertical_offset, main_window.get_size().w,
-                blocksize, multiplier, true, red, main_window.get_renderer());
+    if (blocksize >= 15 || multiplier >= 15 || blocksize + multiplier >= 15)
+        graph_scale = new scale(0, 20 + vertical_offset, total_width, blocksize,
+                multiplier, true, red, main_window.get_renderer());
     else
-        graph_scale = new scale(0, 20+vertical_offset, main_window.get_size().w,
-                blocksize, multiplier, false, red, main_window.get_renderer());
-
+        graph_scale = new scale(0, 20 + vertical_offset, main_window.get_size()
+                .w, blocksize, multiplier, false, red, main_window.get_renderer());
 
     graph_key.render();
     graph_scale.render();
@@ -190,9 +191,11 @@ int main(string[] args)
                 {
                 case SDLK_RIGHT:
                     update_rect_locations(10, 'r');
+                    graph_scale.offset(10, 'r');
                     break;
                 case SDLK_LEFT:
                     update_rect_locations(10, 'l');
+                    graph_scale.offset(10, 'l');
                     break;
                 case SDLK_q:
                     quit = true;

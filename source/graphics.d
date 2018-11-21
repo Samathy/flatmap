@@ -303,6 +303,29 @@ class line : renderable_abstract_object
 
         }
 
+        override void offset(int offset, char alignment)
+        {
+            super.offset(offset, alignment);
+
+            if (alignment == 'l')
+            {
+                this.x2 += offset;
+            }
+            else if (alignment == 'r')
+            {
+                this.x2 -= offset;
+            }
+
+            else if (alignment == 't')
+            {
+                this.y2 += offset;
+            }
+            else if (alignment == 'b')
+            {
+                this.y2 -= offset;
+            }
+        }
+
         override void render()
         {
             SDL_.SetRenderDrawColor(this.renderer, this.col.r, this.col.g, this.col.b, this.col.a);
@@ -703,6 +726,38 @@ class scale
             }
 
             destroy(this.xline);
+        }
+
+        void offset(int offset, char alignment)
+        {
+
+            auto update_tics = delegate void{
+                foreach (tic; this.tics)
+                {
+                    tic.offset(offset, alignment);
+                }
+            };
+            auto update_labels = delegate void{
+                foreach (label; this.labels)
+                {
+                    label.offset(offset, alignment);
+                }
+            };
+
+            switch (alignment)
+            {
+            case 'l':
+                this.x += offset;
+                break;
+            case 'r':
+                this.x -= offset;
+                break;
+            default:
+                throw new Exception("ENOTIMPL");
+            }
+
+            update_tics();
+            update_labels();
         }
 
         void render()
