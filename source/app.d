@@ -76,7 +76,7 @@ int main(string[] args)
     string[] filename; //The datafile we're opening
     char delimiter = ' '; //The column delimiter
     int blocksize = 1;
-    int multiplier = 0;
+    int multiplier = 1;
     int window_width = 640;
     int window_height = 480;
     int total_width;
