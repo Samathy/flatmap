@@ -149,12 +149,12 @@ int main(string[] args)
         vertical_offset += 50;
     }
 
-    if (blocksize >= 15)
+    if (blocksize >= 15 || multiplier >= 15)
         graph_scale = new scale(0, 20+vertical_offset, main_window.get_size().w,
-                blocksize * multiplier, true, red, main_window.get_renderer());
+                blocksize, multiplier, true, red, main_window.get_renderer());
     else
         graph_scale = new scale(0, 20+vertical_offset, main_window.get_size().w,
-                blocksize * multiplier, false, red, main_window.get_renderer());
+                blocksize, multiplier, false, red, main_window.get_renderer());
 
 
     graph_key.render();

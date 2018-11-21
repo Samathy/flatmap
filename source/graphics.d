@@ -676,7 +676,7 @@ class scale
 {
     public
     {
-        this(int x, int y, int length, int tic_distance, bool tic_labels, color col, SDL_Renderer* renderer)
+        this(int x, int y, int length, int tic_distance, int multiplier, bool tic_labels, color col, SDL_Renderer* renderer)
         {
             this.x = x;
             this.y = y;
@@ -685,7 +685,7 @@ class scale
             this.col = col;
             this.renderer = renderer;
 
-            create_tics(tic_distance, tic_labels);
+            create_tics(tic_distance, multiplier, tic_labels);
 
             this.xline = new line(this.x, this.y, this.length, this.y, this.col, this.renderer);
         }
@@ -723,15 +723,15 @@ class scale
     private
     {
 
-        void create_tics(int tic_distance, bool tic_labels)
+        void create_tics(int tic_distance, int multiplier, bool tic_labels)
         {
-            for (int i = this.x; i < this.length; i += tic_distance)
+            for (int i = this.x; i < this.length; i += tic_distance*multiplier)
             {
                 this.tics ~= new line(i, this.y, i, this.y - 10, this.col, this.renderer);
 
                 if(tic_labels)
                 {
-                    this.labels ~= new text(to!string(i), i, this.y+5, this.col, 10, this.renderer);
+                    this.labels ~= new text(to!string(i/multiplier), i, this.y+5, this.col, 10, this.renderer);
                 }
             }
 
