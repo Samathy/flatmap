@@ -86,10 +86,32 @@ int main(string[] args)
     SDL_Event e;
     File data_file;
     data_point!(string, int, int)[][] graphs;
+    GetoptResult rslt;
+    string usage = "Flatmap visually displays protocol & file headers, structures and other data layouts.";
 
-    getopt(args, std.getopt.config.required, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b", &blocksize,
-            "multiplier|m", &multiplier, "width|w", &window_width, "height|h",
-            &window_height, "save|s", &save, "output|o", &out_file);
+    try
+    {
+        rslt = getopt(args, std.getopt.config.required, "filename|f",
+                "Input filename, can be specified multiple times for multiple input files",
+                &filename, "delim|d", "Delimiting character", &delimiter,
+                "blocksize|b", "Datablock size", &blocksize, "multiplier|m",
+                "Datablock multiplier",
+                &multiplier, "width|w", "Window width (px)", &window_width,
+                "height|h", "Window height (px)", &window_height,
+                "save|s", "Save an image of graph", &save, "output|o",
+                "Saved image filename", &out_file);
+    }
+    catch (std.getopt.GetOptException e)
+    {
+        defaultGetoptPrinter(usage, rslt.options);
+        return 0;
+    }
+
+    if (rslt.helpWanted)
+    {
+        defaultGetoptPrinter(usage, rslt.options);
+        return 0;
+    }
 
     foreach (input_file; filename)
     {
