@@ -115,22 +115,33 @@ int main(string[] args)
 
     foreach (input_file; filename)
     {
+        data_point!(string, int, int)[] data_points;
 
-        if (exists(input_file))
+        if (input_file == "-")
         {
-            data_file.open(input_file, "r");
+            string line;
+            while ((line = readln!(string)()) !is null)
+            {
+                line = strip(line);
+                data_points ~= new data_point!(string, int, int)(line, delimiter);
+            }
         }
         else
         {
-            writeln("No input file");
-            return 1;
-        }
+            if (exists(input_file))
+            {
+                data_file.open(input_file, "r");
+            }
+            else
+            {
+                writeln("No input file");
+                return 1;
+            }
 
-        data_point!(string, int, int)[] data_points;
-
-        foreach (line; data_file.byLine())
-        {
-            data_points ~= new data_point!(string, int, int)(to!string(line), delimiter);
+            foreach (line; data_file.byLine())
+            {
+                data_points ~= new data_point!(string, int, int)(to!string(line), delimiter);
+            }
         }
 
         graphs ~= data_points;

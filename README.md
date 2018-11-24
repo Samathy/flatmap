@@ -57,7 +57,7 @@ e.g Given a block count of 1 and a block size of 1 with a multiplier of 1 the
 - [ ] Implement proper unittesting with d-unit
 - [x] Implement some nice way of closing the window
 - [x] Support scrolling display
-- [ ] Support piping in values on stdin
+- [x] Support piping in values on stdin
     - [ ] Support continuous updating from stdin values
 - [x] Support multiple graphs on the same screen
 - [x] Support saving image
