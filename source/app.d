@@ -80,13 +80,16 @@ int main(string[] args)
     int window_width = 640;
     int window_height = 480;
     int total_width;
+    bool save;
+    string out_file;
     bool quit = false;
     SDL_Event e;
     File data_file;
     data_point!(string, int, int)[][] graphs;
 
     getopt(args, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b", &blocksize,
-            "multiplier|m", &multiplier, "width|w", &window_width, "height|h", &window_height);
+            "multiplier|m", &multiplier, "width|w", &window_width, "height|h",
+            &window_height, "save|s", &save, "output|o", &out_file);
 
     foreach (input_file; filename)
     {
@@ -179,8 +182,25 @@ int main(string[] args)
     };
 
     auto save_surface = delegate void() {
-        SDL_.SaveBMP(SDL_.GetWindowSurface(main_window.get_window()), "flatmap_save.bmp");
+        if (out_file.empty())
+        {
+            out_file = "flatmap_save.bmp";
+        }
+
+        SDL_.SaveBMP(SDL_.GetWindowSurface(main_window.get_window()), out_file);
     };
+
+    if (save)
+    {
+        render_rects();
+        main_window.update();
+        if (!out_file.empty())
+        {
+            save_surface();
+        }
+        else
+            save_surface();
+    }
 
     while (!quit)
     {
