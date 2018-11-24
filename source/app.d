@@ -178,6 +178,10 @@ int main(string[] args)
         }
     };
 
+    auto save_surface = delegate void() {
+        SDL_.SaveBMP(SDL_.GetWindowSurface(main_window.get_window()), "flatmap_save.bmp");
+    };
+
     while (!quit)
     {
 
@@ -198,6 +202,9 @@ int main(string[] args)
                 case SDLK_LEFT:
                     update_rect_locations(10, 'l');
                     graph_scale.offset(10, 'l');
+                    break;
+                case SDLK_s:
+                    save_surface();
                     break;
                 case SDLK_q:
                     quit = true;

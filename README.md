@@ -60,7 +60,7 @@ e.g Given a block count of 1 and a block size of 1 with a multiplier of 1 the
 - [ ] Support piping in values on stdin
     - [ ] Support continuous updating from stdin values
 - [x] Support multiple graphs on the same screen
-- [ ] Support saving image
+- [x] Support saving image
 - [x] Support specifying block sizes
 - [x] Support adding labels
 - [x] Support a key

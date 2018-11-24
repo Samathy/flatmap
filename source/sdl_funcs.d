@@ -1,5 +1,5 @@
 import std.conv : to;
-import std.stdio;
+import std.stdio, std.string;
 
 import derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.util.exception,
     derelict.util.loader : SharedLibVersion;
@@ -142,6 +142,11 @@ class SDL
         int RenderDrawLine(SDL_Renderer* ren, int x, int y, int x2, int y2)
         {
             return SDL_RenderDrawLine(ren, x, y, x2, y2);
+        }
+
+        int SaveBMP(SDL_Surface* surface, string filename)
+        {
+            return SDL_SaveBMP(surface, toStringz(filename));
         }
 
         void FreeSurface(SDL_Surface* surface)
