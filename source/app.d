@@ -87,7 +87,7 @@ int main(string[] args)
     File data_file;
     data_point!(string, int, int)[][] graphs;
 
-    getopt(args, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b", &blocksize,
+    getopt(args, std.getopt.config.required, "filename|f", &filename, "delim|d", &delimiter, "blocksize|b", &blocksize,
             "multiplier|m", &multiplier, "width|w", &window_width, "height|h",
             &window_height, "save|s", &save, "output|o", &out_file);
 
